@@ -2,11 +2,14 @@
 # Do not directly edit this file, override instead
 
 [QHJSINILoaderSettings]
-AvailableLoaders[]=qhautosave
+AvailableSets[]=qhautosave
 
 [qhautosave]
 AvailableINIConfigs[]
 AvailableINIConfigs[]=qhautosave.ini
+AvailableINIConfigs[]=site.ini/SiteSettings
+AvailableINIConfigs[]=site.ini/TemplateSettings/TemplateDebug
+AvailableINIConfigs[]=site.ini/TemplateSettings/TemplateDebug,ShowUsedTemplates
 Usei18n=enabled
 
 */ ?>

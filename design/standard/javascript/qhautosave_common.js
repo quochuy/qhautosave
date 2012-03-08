@@ -11,17 +11,25 @@ var qhAutoSave = {
     initialize: function( qhjsiniloader_config ) {
         // Save the config in a global variable
         qhAutoSave.config = qhjsiniloader_config;
+        var qhAutosaveSettings = qhAutoSave.config.from_ini['qhautosave.ini'].QHAutoSaveSettings;
 
         // If not config data is returned from QHJSINILoader, use default values
         if( typeof qhAutoSave.config == 'undefined' ) {
             qhAutoSave.config = {autosave_interval: 15000, warn_on_unload: true};
         } else {
             // Checking validity of the autosave interval config value
-            if( typeof parseInt( qhAutoSave.config.autosave_interval ) != 'number' || parseInt( qhAutoSave.config.autosave_interval ) < 1000 ) {
+            if( typeof parseInt( qhAutosaveSettings.AutoSaveInterval ) == 'number'
+                && parseInt( qhAutosaveSettings.AutoSaveInterval ) > 1000
+            ) {
+                qhAutoSave.config.autosave_interval = parseInt( qhAutosaveSettings.AutoSaveInterval );
+            } else {
                 qhAutoSave.config.autosave_interval = qhAutoSave.default_interval;
             }
 
-            if( typeof qhAutoSave.config.warn_on_unload != 'boolean' ) {
+            if( qhAutosaveSettings.WarnOnUnload != '' ) {
+                if( qhAutosaveSettings.WarnOnUnload == 'enabled' )
+                    qhAutoSave.config.warn_on_unload = true;
+            } else {
                 qhAutoSave.config.warn_on_unload = qhAutoSave.default_warn_on_unload;
             }
         }
@@ -36,7 +44,7 @@ var qhAutoSave = {
         // Start the automatic saving feature
         setInterval( "qhAutoSave.autosave()", qhAutoSave.config.autosave_interval );
 
-        qhAutoSave.notify( qhAutoSave.config.i18n.active );
+        qhAutoSave.notify( qhAutoSave.config.from_loader.i18n.active );
 
     },
 
@@ -58,7 +66,7 @@ var qhAutoSave = {
     // Autosave function
     autosave: function() {
         if( !qhAutoSave.stop ) {
-            qhAutoSave.notify( qhAutoSave.config.i18n.in_progress );
+            qhAutoSave.notify( qhAutoSave.config.from_loader.i18n.in_progress );
 
             // Tells tinyMCE to save the content of each XML Block back to their HMTL Input field
             if( typeof tinyMCE != 'undefined' ) tinyMCE.triggerSave();
@@ -74,18 +82,24 @@ var qhAutoSave = {
             if( form_content != qhAutoSave.form_content ) {
                 $[form_method](post_url, form_content, function(data){
                     if( qhAutoSaveCommon.type == 'admin' ) {
-                        qhAutoSave.notify( qhAutoSave.config.i18n.done );
-                    } else if ( qhAutoSaveCommon.type == 'ezwebin' ) {
-                        setTimeout( "qhAutoSave.notify( qhAutoSave.config.i18n.store_draft )", 500 );
+                        qhAutoSave.notify( qhAutoSave.config.from_loader.i18n.done );
+                    } else if (
+                        qhAutoSaveCommon.type == 'ezwebin'
+                        || qhAutoSaveCommon.type == 'ezflow'
+                    ) {
+                        setTimeout( "qhAutoSave.notify( qhAutoSave.config.from_loader.i18n.store_draft )", 500 );
                     }
                     qhAutoSave.form_content = form_content;
                 });
                 return true;
             } else {
                 if( qhAutoSaveCommon.type == 'admin' ) {
-                    qhAutoSave.notify( qhAutoSave.config.i18n.no_changes );
-                } else if ( qhAutoSaveCommon.type == 'ezwebin' ) {
-                    setTimeout( "qhAutoSave.notify( qhAutoSave.config.i18n.store_draft )", 500 );
+                    qhAutoSave.notify( qhAutoSave.config.from_loader.i18n.no_changes );
+                } else if (
+                    qhAutoSaveCommon.type == 'ezwebin'
+                    || qhAutoSaveCommon.type == 'ezflow'
+                ) {
+                    setTimeout( "qhAutoSave.notify( qhAutoSave.config.from_loader.i18n.store_draft )", 500 );
                 }
                 return false;
             }
@@ -97,12 +111,16 @@ var qhAutoSave = {
         if( qhAutoSaveCommon.type == 'admin' ) {
             qhAutoSave.notifications.setMessage( {notification_id: 'autosave_status', text: message, type: 'sticky'} );
             qhAutoSave.notifications.display();
-        } else if ( qhAutoSaveCommon.type == 'ezwebin' ) {
+        } else if (
+            qhAutoSaveCommon.type == 'ezwebin'
+            || qhAutoSaveCommon.type == 'ezflow'
+        ) {
             var ezwt_editaction_buttons = $( '#ezwt-editaction input' );
             for( var i=0; i<ezwt_editaction_buttons.length; i++ ) {
                 if( ezwt_editaction_buttons[i].name == 'StoreButton') {
                     ezwt_editaction_buttons[i].value = message;
                 }
+                ezwt_editaction_buttons[i].style.width = '135px';
             }
         }
     }
