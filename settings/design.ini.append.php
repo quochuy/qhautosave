@@ -10,7 +10,10 @@ DesignExtensions[]=qhautosave
 # FrontendJavaScriptList[]=ezjsc::jquery
 # FrontendJavaScriptList[]=ezjsc::jqueryio
 
+FrontendJavaScriptList[]=qhautosave_common.js
 FrontendJavaScriptList[]=qhautosave.js
+
+BackendJavaScriptList[]=qhautosave_common.js
 BackendJavaScriptList[]=qhautosave.js
 
 */ ?>

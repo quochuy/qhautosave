@@ -1,3 +1,3 @@
 var qhAutoSaveCommon = {
-    type: 'ezwebin'   
+    type: 'ezflow'   
 }
